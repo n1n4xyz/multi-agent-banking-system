@@ -1,0 +1,44 @@
+{
+  "name": "deposit",
+  "description": "Deposit account agent for Example National Bank. Handles cash deposit accounts only: account listing, individual balances and recent transactions. Confirms whether combined deposits meet a minimum without disclosing the total.",
+  "url": "http://localhost:8000/a2a/deposit",
+  "version": "1.0.0",
+  "protocolVersion": "0.3.0",
+  "preferredTransport": "JSONRPC",
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "capabilities": {
+    "streaming": false,
+    "functions": true
+  },
+  "skills": [
+    {
+      "id": "list-accounts",
+      "name": "List deposit accounts",
+      "description": "Lists the deposit accounts the customer holds, by name. Does not return balances.",
+      "tags": ["deposit", "accounts"],
+      "examples": ["What accounts do I have?", "Which deposit accounts are open?"]
+    },
+    {
+      "id": "account-balance",
+      "name": "Account balance",
+      "description": "Returns the current balance of one named deposit account. Combined balances across accounts are never disclosed.",
+      "tags": ["deposit", "balance"],
+      "examples": ["What is the balance on my vacation account?", "How much is in my primary account?"]
+    },
+    {
+      "id": "recent-transactions",
+      "name": "Recent transactions",
+      "description": "Returns recent transactions for one named deposit account, newest first.",
+      "tags": ["deposit", "transactions"],
+      "examples": ["Show me the last five transactions on my primary account.", "How much did I pay the hotel from my vacation account?"]
+    },
+    {
+      "id": "check-minimum-balance",
+      "name": "Minimum balance check",
+      "description": "Takes an amount and answers true or false depending on whether combined deposit balances reach it. Used by the loan approval workflow over A2A. The underlying total is never returned.",
+      "tags": ["deposit", "equity", "a2a"],
+      "examples": ["Do the combined deposit balances reach 4436.66?"]
+    }
+  ]
+}

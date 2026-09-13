@@ -1,0 +1,108 @@
+# ---------------------------------------------------------------------------
+# MCP Database Toolbox configuration for the DEPOSIT agent.
+#
+# Every credential comes from the environment so nothing sensitive is
+# committed. Export them before starting the toolbox:
+#   export $(grep -v '^#' .env | xargs)
+#   ./toolbox --tools-files deposit/tools.yaml --tools-files loan/tools.yaml
+#
+# Tool names are prefixed with "deposit-" because the deposit and loan tool
+# files are served by the same toolbox process and names must stay unique.
+#
+# Authentication is assumed to have happened already, so every statement is
+# scoped to customer_id = 1. In a real system that value would come from the
+# authenticated session and never from the model.
+# ---------------------------------------------------------------------------
+
+sources:
+  deposit:
+    kind: mysql
+    host: ${MYSQL_HOST}
+    port: ${MYSQL_PORT:3306}
+    database: bank
+    user: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+
+tools:
+
+  deposit-list-accounts:
+    kind: mysql-sql
+    source: deposit
+    description: >
+      Lists the deposit accounts the customer holds. Returns account
+      identifiers and names only, never balances. Use this when the customer
+      asks which accounts they have, or to work out which account name they
+      mean.
+    statement: |
+      SELECT id, account_type
+      FROM accounts
+      WHERE customer_id = 1
+      ORDER BY account_type;
+
+  deposit-get-balance:
+    kind: mysql-sql
+    source: deposit
+    description: >
+      Returns the current balance of one named deposit account. The account
+      type is the short name the customer uses, such as "vacation" or
+      "primary". Call this once per account and never add the results
+      together.
+    parameters:
+      - name: account_type
+        type: string
+        description: The account name, for example "vacation" or "primary".
+    statement: |
+      SELECT account_type, balance
+      FROM accounts
+      WHERE customer_id = 1
+        AND account_type = ?;
+
+  deposit-get-transactions:
+    kind: mysql-sql
+    source: deposit
+    description: >
+      Returns the most recent transactions for one named deposit account,
+      newest first. Negative amounts are money leaving the account, positive
+      amounts are money arriving. Use a limit of 5 unless the customer asks
+      for more.
+    parameters:
+      - name: account_type
+        type: string
+        description: The account name, for example "vacation" or "primary".
+      - name: limit
+        type: integer
+        description: How many transactions to return. Use 5 by default.
+    statement: |
+      SELECT t.transaction_date, t.amount, t.description
+      FROM transactions t
+      JOIN accounts a ON a.id = t.account_id
+      WHERE a.customer_id = 1
+        AND a.account_type = ?
+      ORDER BY t.transaction_date DESC, t.id DESC
+      LIMIT ?;
+
+  deposit-check-minimum-balance:
+    kind: mysql-sql
+    source: deposit
+    description: >
+      Answers whether the combined balance of every deposit account reaches a
+      given minimum. Returns the single word true or false and never the
+      underlying total. This is the only sanctioned way for another part of
+      the bank to reason about total deposits, and it is what the loan
+      approval workflow calls over A2A.
+    parameters:
+      - name: minimum
+        type: float
+        description: The amount to test the combined deposit balance against.
+    statement: |
+      SELECT CASE WHEN COALESCE(SUM(balance), 0) >= ?
+                  THEN 'true' ELSE 'false' END AS meets_minimum
+      FROM accounts
+      WHERE customer_id = 1;
+
+toolsets:
+  deposit-toolset:
+    - deposit-list-accounts
+    - deposit-get-balance
+    - deposit-get-transactions
+    - deposit-check-minimum-balance
