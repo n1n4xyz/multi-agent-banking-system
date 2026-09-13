@@ -1,53 +1,33 @@
-# README Template
+# Multi-Agent Banking Prototype
 
-Below is a template provided for use when building your README file for students.
+Three independent banking agents built on Google's Agent Development Kit,
+communicating over the A2A protocol. Built as a prototype to show that agents
+with genuinely separate data access can collaborate on a lending decision
+without any one of them seeing the whole customer picture.
 
-# Project Title
+## The agents
 
-Project description goes here.
+`project/manager` answers general questions about the bank and routes account
+questions to the other two. Holds no customer data.
 
-## Getting Started
+`project/deposit` owns deposit accounts. Lists accounts, returns individual
+balances and transactions, and confirms whether combined balances clear a
+threshold without ever disclosing the total.
 
-Instructions for how to get a copy of the project running on your local machine.
+`project/loan` owns loans. Answers questions about existing borrowing and runs
+new applications through a six-stage approval workflow that reads a policy PDF
+and a customer profile PDF from Cloud Storage, computes the required deposit
+level in Python and checks it with the deposit agent over A2A.
 
-### Dependencies
+## Running it
 
-```
-Examples here
-```
+See `runbook.md` for setup: Cloud SQL, the Cloud Storage bucket, the MCP
+Database Toolbox and the agents themselves.
 
-### Installation
+## Deliverables
 
-Step by step explanation of how to get a dev environment running.
-
-List out the steps
-
-```
-Give an example here
-```
-
-## Testing
-
-Explain the steps needed to run any automated tests
-
-### Break Down Tests
-
-Explain what each test does and why
-
-```
-Examples here
-```
-## Project Instructions
-
-This section should contain all the student deliverables for this project.
-
-## Built With
-
-* [Item1](www.item1.com) - Description of item
-* [Item2](www.item2.com) - Description of item
-* [Item3](www.item3.com) - Description of item
-
-Include all items used to build project.
-
-## License
-[License](../LICENSE.md)
+`report.md` is the analysis written for the bank's board, covering the
+architecture, the approval orchestration, the test results, the risks and what
+would come next. `project/architecture.png` is the system diagram.
+`project/test_results.*` are the results of the fifteen board scenarios.
+`project/screenshots` shows the approval and rejection flows with final state.
