@@ -1,0 +1,37 @@
+{
+  "name": "manager",
+  "description": "Customer-facing agent for Example National Bank. Answers general questions about the bank, such as hours, contact details and products, and routes account questions to the deposit and loan agents over A2A.",
+  "url": "http://localhost:8000/a2a/manager",
+  "version": "1.0.0",
+  "protocolVersion": "0.3.0",
+  "preferredTransport": "JSONRPC",
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "capabilities": {
+    "streaming": false,
+    "functions": true
+  },
+  "skills": [
+    {
+      "id": "general-banking-information",
+      "name": "General banking information",
+      "description": "Answers questions about branch hours, contact details, products offered and deposit insurance, without reaching any customer data.",
+      "tags": ["bank", "information"],
+      "examples": ["What are your opening hours?", "What kinds of accounts do you offer?", "How do I report a lost card?"]
+    },
+    {
+      "id": "deposit-routing",
+      "name": "Deposit account questions",
+      "description": "Routes questions about deposit accounts, balances and transactions to the deposit agent over A2A and relays the answer.",
+      "tags": ["routing", "deposit", "a2a"],
+      "examples": ["What is my current balance on the vacation account?", "What was my most recent payment?"]
+    },
+    {
+      "id": "loan-routing",
+      "name": "Loan questions and applications",
+      "description": "Routes questions about loans, repayments and new borrowing to the loan agent over A2A and relays the answer.",
+      "tags": ["routing", "loan", "a2a"],
+      "examples": ["When is my next auto payment due?", "Can I borrow $10,000 for a car?"]
+    }
+  ]
+}

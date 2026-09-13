@@ -1,0 +1,98 @@
+# MCP Database Toolbox configuration for the LOAN agent.
+# Same database as the deposit agent, different tables and a separate tool
+# file, so the loan agent can only ever reach loan data.
+
+sources:
+  loan:
+    kind: mysql
+    host: ${MYSQL_HOST}
+    port: ${MYSQL_PORT:3306}
+    database: bank
+    user: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+
+tools:
+
+  loan-list-loans:
+    kind: mysql-sql
+    source: loan
+    description: >
+      Lists every loan the customer holds with the bank, with its type,
+      original amount and outstanding balance.
+    statement: |
+      SELECT id, loan_type, origination_date, amount, outstanding_balance
+      FROM loans
+      WHERE customer_id = 1
+      ORDER BY origination_date;
+
+  loan-get-balance:
+    kind: mysql-sql
+    source: loan
+    description: >
+      Returns the outstanding balance on one named loan. The loan type is the
+      short name the customer uses, such as "auto" or "personal".
+    parameters:
+      - name: loan_type
+        type: string
+        description: The loan type, for example "auto" or "personal".
+    statement: |
+      SELECT loan_type, amount, outstanding_balance
+      FROM loans
+      WHERE customer_id = 1
+        AND loan_type = ?;
+
+  loan-get-details:
+    kind: mysql-sql
+    source: loan
+    description: >
+      Returns the full terms of one named loan: original amount, outstanding
+      balance, term length in months, monthly payment, when it was taken out
+      and when the next payment falls due.
+    parameters:
+      - name: loan_type
+        type: string
+        description: The loan type, for example "auto" or "personal".
+    statement: |
+      SELECT loan_type, origination_date, amount, outstanding_balance,
+             terms, monthly_payment, next_payment_date
+      FROM loans
+      WHERE customer_id = 1
+        AND loan_type = ?;
+
+  loan-get-next-payment-date:
+    kind: mysql-sql
+    source: loan
+    description: >
+      Returns the next payment date and monthly payment amount for one named
+      loan.
+    parameters:
+      - name: loan_type
+        type: string
+        description: The loan type, for example "auto" or "personal".
+    statement: |
+      SELECT loan_type, next_payment_date, monthly_payment
+      FROM loans
+      WHERE customer_id = 1
+        AND loan_type = ?;
+
+  loan-get-total-outstanding:
+    kind: mysql-sql
+    source: loan
+    description: >
+      Returns the combined outstanding balance across every loan the customer
+      holds, together with how many loans are active.
+    statement: |
+      SELECT COUNT(*) AS active_loans,
+             COALESCE(SUM(outstanding_balance), 0) AS total_outstanding
+      FROM loans
+      WHERE customer_id = 1;
+
+toolsets:
+  loan-toolset:
+    - loan-list-loans
+    - loan-get-balance
+    - loan-get-details
+    - loan-get-next-payment-date
+
+  loan-approval-toolset:
+    - loan-get-total-outstanding

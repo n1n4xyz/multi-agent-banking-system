@@ -1,0 +1,44 @@
+{
+  "name": "loan",
+  "description": "Loan agent for Example National Bank. Answers questions about the customer's existing loans and runs applications for new loans through a policy-based approval workflow. Holds no deposit account data.",
+  "url": "http://localhost:8000/a2a/loan",
+  "version": "1.0.0",
+  "protocolVersion": "0.3.0",
+  "preferredTransport": "JSONRPC",
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "capabilities": {
+    "streaming": false,
+    "functions": true
+  },
+  "skills": [
+    {
+      "id": "outstanding-balance",
+      "name": "Outstanding loan balance",
+      "description": "Returns how much is still owed on a named loan, or across all loans the customer holds.",
+      "tags": ["loan", "balance"],
+      "examples": ["How much do I still owe on my personal loan?", "Do I have any outstanding loans?"]
+    },
+    {
+      "id": "loan-terms",
+      "name": "Loan terms and details",
+      "description": "Returns the terms of a named loan: original amount, term length, monthly payment and origination date.",
+      "tags": ["loan", "terms"],
+      "examples": ["What are the terms on my auto loan?", "How long does my personal loan run for?"]
+    },
+    {
+      "id": "next-payment",
+      "name": "Next payment date",
+      "description": "Returns when the next payment on a named loan is due and how much it will be.",
+      "tags": ["loan", "payments"],
+      "examples": ["When is my next auto payment due?", "How much is my next payment?"]
+    },
+    {
+      "id": "loan-application",
+      "name": "New loan eligibility",
+      "description": "Assesses an application for a new loan against the bank's lending policy, the customer's existing debt, their internal rating and, through an A2A call to the deposit agent, whether they hold enough on deposit. Returns an approval or a decline without disclosing the criteria behind it.",
+      "tags": ["loan", "application", "a2a"],
+      "examples": ["Can I borrow $10,000 for a car?", "I'd like a $700 personal loan."]
+    }
+  ]
+}
