@@ -1,0 +1,7 @@
+a2a-sdk>=0.3.6
+google-adk>=1.17.0
+toolbox-core>=0.5.0
+
+# Reading the loan policy and customer profile PDFs out of Cloud Storage
+google-cloud-storage>=2.18.0
+pypdf>=5.0.0sse-starlette>=2.1.0
